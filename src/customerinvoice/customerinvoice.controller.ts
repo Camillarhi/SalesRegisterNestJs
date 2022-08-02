@@ -9,6 +9,8 @@ import { CustomerInvoice } from './customerinvoice.entity';
 import { CustomerinvoiceService } from './customerinvoice.service';
 import { CustomerInvoiceCeateDTO } from './model/customerinvoice.create.dto';
 
+@ApiTags("Customer Invoice")
+@UseGuards(JwtAuthGuard)
 @Controller('customerinvoice')
 export class CustomerinvoiceController {
     constructor(

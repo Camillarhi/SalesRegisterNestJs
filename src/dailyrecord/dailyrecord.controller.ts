@@ -21,7 +21,7 @@ export class DailyrecordController {
 
 
     @Get()
-    async all(@Req() request: Request): Promise<CustomerInvoice[]> {
+    async all(@Req() request: Request) {
         const loggedInUser = request.user["id"];
         const user = await this.userService.findOne({ id: loggedInUser })
 
