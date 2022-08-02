@@ -1,4 +1,4 @@
-import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, NotFoundException, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
@@ -14,6 +14,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { ChangePasswordDTO } from './models/changePassword.dto';
 import { LoginDTO } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
+import { UserCreateDTO } from './models/user.create.dto';
 
 @ApiTags("Auth")
 @UseInterceptors(ClassSerializerInterceptor)
@@ -25,7 +26,7 @@ export class AuthController {
     ) { }
 
 
-    @Post('register')
+    @Post('setupadmin')
     @UseInterceptors(FileInterceptor('picture', {
         storage: diskStorage({
             destination: "./uploads",
@@ -39,28 +40,46 @@ export class AuthController {
         @Body() body: RegisterDto,
         @UploadedFile() file: Express.Multer.File
     ) {
-        if (body.password !== body.confirmPassword) {
-            throw new BadRequestException("Passwords do not match")
+        let user: User = await this.userService.findOne(body.email);
+        if (!user) {
+            throw new BadRequestException("User does not exist")
         }
-        const hashed = await bcrypt.hash(body.password, 12);
         let proPicture: string;
         if (file?.filename) {
             proPicture = `https://nest-api-investment.herokuapp.com/api/uploads/${file.filename}`
         } else {
             proPicture = ''
         }
-        const creatUser: User = await this.userService.create({
+        await this.userService.update(user.id, {
             firstName: body.firstName,
             lastName: body.lastName,
-            email: body.email,
-            phoneNo: body.phoneNo,
+            phoneNumber: body.phoneNumber,
             gender: body.gender,
             address: body.address,
             dateOfBirth: body.dateOfBirth,
-            identityNumber: body.identityNumber,
+            profilePicture: proPicture,
+            createdById:user.id,
+            companyName:body.companyName
+            // role: { id: 1 }
+        });
+
+        // sendEmail(body.email, creatUser.firstName, confirmEmailLink(creatUser.id))
+        return { successmessage: "Registration successful" }
+    }
+
+    @Post('createadmin')
+    async signUp(
+        @Body() body: UserCreateDTO,
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        if (body.password !== body.confirmPassword) {
+            throw new BadRequestException("Passwords do not match")
+        }
+        const hashed = await bcrypt.hash(body.password, 12);
+        const creatUser: User = await this.userService.create({
+            email: body.email,
             password: hashed,
-            picture: proPicture,
-            role: { id: 2 }
+            role: { id: 1 }
         });
 
         sendEmail(body.email, creatUser.firstName, confirmEmailLink(creatUser.id))
@@ -78,7 +97,7 @@ export class AuthController {
 
             if (!await bcrypt.compare(body.password, user.password)) {
                 return { errormessage: "Invalid Credentials" }
-            } else if (!user?.confirmedUser) {
+            } else if (!user?.address) {
                 return { errormessage: "Verify email" }
             }
             const payload = { username: user.email, sub: user.id };
@@ -88,7 +107,7 @@ export class AuthController {
                 role: user?.role?.name,
                 email: user?.email,
                 id: user?.id,
-                picture: user?.picture,
+                picture: user?.profilePicture,
                 name: `${user?.firstName} ${user?.lastName}`,
                 access_token: jwtToken,
                 successmessage: "Login successful"

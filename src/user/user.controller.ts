@@ -60,12 +60,10 @@ export class UserController {
                 gender: body?.gender,
                 dateOfBirth: body?.dateOfBirth,
                 picture: proPic,
-                identityNumber: body?.identityNumber
             });
             return { successmessage: "Success" }
-        } else if (body?.identityNumber) {
+        } else if (body?.firstName) {
             await this.userService.update(id, {
-                identityNumber: body?.identityNumber
             });
             return { successmessage: "Success" }
         }
@@ -75,7 +73,6 @@ export class UserController {
             phoneNo: body?.phoneNo,
             gender: body?.gender,
             dateOfBirth: body?.dateOfBirth,
-            identityNumber: body?.identityNumber
         });
         return { successmessage: "Success" }
     }

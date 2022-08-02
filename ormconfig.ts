@@ -2,7 +2,7 @@ import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConne
 
 const config: PostgresConnectionOptions = {
   type: 'postgres',
-  database: 'cryptoapp',
+  database: 'salesregisternest',
 
   port: 5432,
   username: 'postgres',

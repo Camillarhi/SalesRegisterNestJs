@@ -12,7 +12,7 @@ export class RegisterDto {
     email: string;
 
     @IsNotEmpty()
-    phoneNo: string;
+    phoneNumber: string;
 
     @IsNotEmpty()
     gender: string;
@@ -24,15 +24,16 @@ export class RegisterDto {
     dateOfBirth: Date;
 
     // @IsNotEmpty()
-    picture?: string;
+    profilePicture?: string;
+
+    @IsNotEmpty()
+    companyName: string;
+
 
     // @IsNotEmpty()
-    identityNumber: string;
+    // password: string;
 
-    @IsNotEmpty()
-    password: string;
-
-    @IsNotEmpty()
-    confirmPassword: string;
+    // @IsNotEmpty()
+    // confirmPassword: string;
 
 }

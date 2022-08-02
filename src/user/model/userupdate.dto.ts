@@ -12,5 +12,4 @@ export class UserUpdateDto {
 
     picture?: string;
 
-    identityNumber: string;
 }

@@ -17,9 +17,6 @@ export class User {
     email: string;
 
     @Column()
-    phoneNo: string;
-
-    @Column()
     address: string;
 
     @Column()
@@ -29,19 +26,25 @@ export class User {
     dateOfBirth: Date;
 
     @Column({ nullable: true })
-    picture: string;
-
-    @Column({ nullable: true })
-    identityNumber: string;
+    profilePicture: string;
 
     @Column()
     @Exclude()
     password: string;
 
-    @Column({ default: false })
-    confirmedUser: boolean;
+    @Column({ nullable: true })
+    staffId: string;
+
+    @Column({ nullable: true })
+    createdById: string;
+
+    @Column({ nullable: true })
+    companyName: string;
+
+    @Column({ nullable: true })
+    phoneNumber:string;
 
     @ManyToOne(() => Role)
     role: Role;
-
+    
 }
