@@ -10,6 +10,7 @@ import { StockbalanceService } from './stockbalance.service';
 
   ],
   controllers: [StockbalanceController],
-  providers: [StockbalanceService]
+  providers: [StockbalanceService],
+  exports:[StockbalanceService]
 })
 export class StockbalanceModule {}

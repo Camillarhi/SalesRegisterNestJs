@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from 'src/common/common.module';
 import { CustomerinvoiceModule } from 'src/customerinvoice/customerinvoice.module';
@@ -12,7 +12,9 @@ import { DailyrecordService } from './dailyrecord.service';
     TypeOrmModule.forFeature([DailyRecord]),
     CommonModule,
     UserModule,
-    CustomerinvoiceModule
+    forwardRef(()=>CustomerinvoiceModule),
+
+    
   ],
   controllers: [DailyrecordController],
   providers: [DailyrecordService],

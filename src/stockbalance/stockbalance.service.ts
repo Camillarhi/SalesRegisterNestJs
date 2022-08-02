@@ -11,4 +11,15 @@ export class StockbalanceService extends CommonService {
     ) {
         super(stockBalanceRepository)
     }
+
+    async balanceStock(measure: any, product: any, quantity: any): Promise<any> {
+        let productsQty = this.stockBalanceRepository.createQueryBuilder("stockbalance")
+            .where("stockbalance.measure =:measure", { measure: measure })
+            .andWhere("stockbalance.product =:prod", { prod: product })
+            .getOne();
+
+        (await productsQty).quantity -= quantity;
+        await this.stockBalanceRepository.update((await productsQty).id, (await productsQty))
+    }
+
 }

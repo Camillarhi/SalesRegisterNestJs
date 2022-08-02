@@ -2,8 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
 import { DailyRecord } from 'src/dailyrecord/dailyrecord.entity';
+import { DailyrecordService } from 'src/dailyrecord/dailyrecord.service';
 import { Product } from 'src/product/product.entity';
+import { ProductService } from 'src/product/product.service';
 import { StockBalance } from 'src/stockbalance/stockbalance.entity';
+import { StockbalanceService } from 'src/stockbalance/stockbalance.service';
 import { Repository } from 'typeorm';
 import { CustomerInvoice } from './customerinvoice.entity';
 
@@ -11,9 +14,13 @@ import { CustomerInvoice } from './customerinvoice.entity';
 export class CustomerinvoiceService extends CommonService {
     constructor(
         @InjectRepository(CustomerInvoice) private readonly customerInvoiceRepository: Repository<CustomerInvoice>,
-        @InjectRepository(Product) private readonly productRepository: Repository<Product>,
-        @InjectRepository(StockBalance) private readonly stockBalanceRepository: Repository<StockBalance>,
-        @InjectRepository(DailyRecord) private readonly dailyrecordRepository: Repository<DailyRecord>,
+        // @InjectRepository(Product) private readonly productRepository: Repository<Product>,
+        private productService: ProductService,
+        private stockBalanceService: StockbalanceService,
+        private dailyRecordService: DailyrecordService,
+
+        // @InjectRepository(StockBalance) private readonly stockBalanceRepository: Repository<StockBalance>,
+        // @InjectRepository(DailyRecord) private readonly dailyrecordRepository: Repository<DailyRecord>,
     ) {
         super(customerInvoiceRepository)
     }
@@ -54,23 +61,13 @@ export class CustomerinvoiceService extends CommonService {
                 amount: 0,
 
             };
-            let product = this.productRepository.createQueryBuilder("product")
-                .where("product.adminId =:id", { id: user.id })
-                .andWhere("product.id =:prodid", { prodid: data.invoiceDetail[i].productId })
-                .leftJoinAndSelect("product.productMeasures", "productMeasures")
-                .getOne();
-            let unitPrice = (await product).productMeasures.find(x => x.id == data.invoiceDetail[i].measureId && x.productId == data.invoiceDetail[i].productId).unitPrice;
-            let updateProductQty = (await product).productMeasures.find(x => x.id == data.invoiceDetail[i].measureId && x.productId == data.invoiceDetail[i].productId);
+            let product = this.productService.getProductForPrice(user.id, data.invoiceDetail[i].productId)
+            let unitPrice = (await product).productMeasures.find((x: any) => x.id == data.invoiceDetail[i].measureId && x.productId == data.invoiceDetail[i].productId).unitPrice;
+            let updateProductQty = (await product).productMeasures.find((x: any) => x.id == data.invoiceDetail[i].measureId && x.productId == data.invoiceDetail[i].productId);
             updateProductQty.quantity -= recordDetail.quantity;
             recordDetail.unitPrice = unitPrice;
             recordDetail.amount = unitPrice * recordDetail.quantity;
-            let productsQty = this.stockBalanceRepository.createQueryBuilder("stockbalance")
-                .where("stockbalance.measure =:measure", { measure: recordDetail.measure })
-                .andWhere("stockbalance.product =:prod", { prod: recordDetail.product })
-                .getOne();
-
-            (await productsQty).quantity -= recordDetail.quantity;
-            await this.stockBalanceRepository.update((await productsQty).id, (await productsQty))
+            await this.stockBalanceService.balanceStock(recordDetail.measure, recordDetail.product, recordDetail.quantity)
             recorDetails.push(recordDetail);
         }
         record.invoiceDetail = recorDetails
@@ -93,19 +90,15 @@ export class CustomerinvoiceService extends CommonService {
                     unitPrice: 0,
                     amount: 0
                 }
-                let product = this.productRepository.createQueryBuilder("product")
-                    .where("product.adminId =:id", { id: user.id })
-                    .andWhere("product.id =:prodid", { prodid: data.invoiceDetail[i].productId })
-                    .leftJoinAndSelect("product.productMeasures", "productMeasures")
-                    .getOne();
-                let unitPrice = (await product).productMeasures.find(x => x.id == data.invoiceDetail[i].measureId && x.productId == data.invoiceDetail[i].productId).unitPrice;
+                let product = this.productService.getProductForPrice(user.id, data.invoiceDetail[i].productId)
+                let unitPrice = (await product).productMeasures.find((x: any) => x.id == data.invoiceDetail[i].measureId && x.productId == data.invoiceDetail[i].productId).unitPrice;
                 dailySales.unitPrice = unitPrice;
                 dailySales.amount = unitPrice * dailySales.quantity;
                 records.push(dailySales);
 
             }
-            await this.dailyrecordRepository.save(records)
-            await this.productRepository.save(record)
+            await this.customerInvoiceRepository.save(record)
+            await this.dailyRecordService.create(records)
 
             return { successmessage: "Successfully created" }
 
