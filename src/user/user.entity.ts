@@ -7,22 +7,22 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ nullable: true })
     firstName: string;
 
-    @Column()
+    @Column({ nullable: true })
     lastName: string;
 
     @Column({ unique: true })
     email: string;
 
-    @Column()
+    @Column({ nullable: true })
     address: string;
 
-    @Column()
+    @Column({ nullable: true })
     gender: string;
 
-    @Column()
+    @Column({ nullable: true })
     dateOfBirth: Date;
 
     @Column({ nullable: true })
@@ -36,7 +36,7 @@ export class User {
     staffId: string;
 
     @Column({ nullable: true })
-    createdById: string;
+    createdById: number;
 
     @Column({ nullable: true })
     companyName: string;

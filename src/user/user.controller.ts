@@ -4,6 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RegisterDto } from 'src/auth/models/register.dto';
 import { UserUpdateDto } from './model/userupdate.dto';
 import { User } from './user.entity';
 import { UserService } from './user.service';
@@ -40,7 +41,7 @@ export class UserController {
     }
 
     @Put(':id')
-    @UseInterceptors(FileInterceptor('picture', {
+    @UseInterceptors(FileInterceptor('profilePicture', {
         storage: diskStorage({
             destination: "./uploads",
             filename(_, file, callback) {
@@ -50,29 +51,32 @@ export class UserController {
         })
     }))
     async update(@Param('id') id: number,
-        @Body() body: UserUpdateDto, @UploadedFile() file: Express.Multer.File) {
+        @Body() body: RegisterDto, @UploadedFile() file: Express.Multer.File) {
         if (file?.filename) {
             let proPic = `https://nest-api-investment.herokuapp.com/api/uploads/${file.filename}`
             await this.userService.update(id, {
                 firstName: body?.firstName,
                 lastName: body?.lastName,
-                phoneNo: body?.phoneNo,
+                phoneNumber: body?.phoneNumber,
                 gender: body?.gender,
+                address: body?.address,
                 dateOfBirth: body?.dateOfBirth,
-                picture: proPic,
+                profilePicture: proPic,
+                companyName: body?.companyName
             });
             return { successmessage: "Success" }
-        } else if (body?.firstName) {
-            await this.userService.update(id, {
-            });
-            return { successmessage: "Success" }
+        // } else if (body?.firstName) {
+        //     await this.userService.update(id, { body });
+        //     return { successmessage: "Success" }
         }
         await this.userService.update(id, {
-            firstName: body?.firstName,
-            lastName: body?.lastName,
-            phoneNo: body?.phoneNo,
-            gender: body?.gender,
-            dateOfBirth: body?.dateOfBirth,
+            firstName: body.firstName,
+            lastName: body.lastName,
+            phoneNumber: body.phoneNumber,
+            gender: body.gender,
+            address: body.address,
+            dateOfBirth: body.dateOfBirth,
+            companyName: body.companyName
         });
         return { successmessage: "Success" }
     }

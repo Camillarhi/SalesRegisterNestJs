@@ -27,7 +27,7 @@ export class AuthController {
 
 
     @Post('setupadmin')
-    @UseInterceptors(FileInterceptor('picture', {
+    @UseInterceptors(FileInterceptor('profilePicture', {
         storage: diskStorage({
             destination: "./uploads",
             filename(_, file, callback) {
@@ -40,13 +40,13 @@ export class AuthController {
         @Body() body: RegisterDto,
         @UploadedFile() file: Express.Multer.File
     ) {
-        let user: User = await this.userService.findOne(body.email);
+        let user: User = await this.userService.findOne({email:body.email});
         if (!user) {
             throw new BadRequestException("User does not exist")
         }
         let proPicture: string;
         if (file?.filename) {
-            proPicture = `https://nest-api-investment.herokuapp.com/api/uploads/${file.filename}`
+            proPicture = `http://localhost:8000/api/uploads/${file.filename}`
         } else {
             proPicture = ''
         }

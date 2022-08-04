@@ -5,7 +5,7 @@ export class ProductCreateDTO {
     @IsNotEmpty()
     productName: string;
 
-    @IsNotEmpty()
+    // @IsNotEmpty()
     productMeasures: ProductMeasureCreateDTO[]
 
 

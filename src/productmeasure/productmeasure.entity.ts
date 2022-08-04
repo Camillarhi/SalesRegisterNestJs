@@ -12,19 +12,19 @@ export class ProductMeasure {
     @Column()
     measure: string;
 
-    @Column()
+    @Column({ nullable: true, default: 0 })
     quantity: number;
 
-    @Column()
+    @Column({ nullable: true, default: 0 })
     unitPrice: number;
 
-    @Column()
+    @Column({ nullable: true, default: 0 })
     qtyPerMeasure: number;
 
-    @Column()
+    @Column({ nullable: true, default: 0 })
     costPrice: number;
 
-    @ManyToOne(() => Product, (x) => x.productMeasures, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Product, (x) => x.productMeasures, { onDelete: 'CASCADE', orphanedRowAction: "delete" })
     product: Product
 
 }

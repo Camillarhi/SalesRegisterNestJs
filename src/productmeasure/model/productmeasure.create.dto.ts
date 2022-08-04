@@ -4,16 +4,16 @@ export class ProductMeasureCreateDTO {
    @IsNotEmpty()
     measure: string;
 
-   @IsNotEmpty()
+//    @IsNotEmpty()
     quantity: number;
 
-   @IsNotEmpty()
+//    @IsNotEmpty()
     unitPrice: number;
 
-   @IsNotEmpty()
+//    @IsNotEmpty()
     qtyPerMeasure: number;
 
-   @IsNotEmpty()
+//    @IsNotEmpty()
     costPrice: number;
 
 }

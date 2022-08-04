@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -26,10 +26,17 @@ export class ProductController {
         return this.productService.customQuery(loggedInUser);
     }
 
+    @Get("updatedproducts")
+    async allWithPrices(@Req() request: Request): Promise<Product[]> {
+        const loggedInUser = request.user["id"];
+        const user = await this.userService.findOne({ id: loggedInUser })
+
+        return this.productService.getPrices(loggedInUser);
+    }
 
     @Get(":id")
     async getOne(@Param("id") id: number) {
-        return this.productService.findOne({ id },["productMeasures"]);
+        return this.productService.findOne({ id }, ["productMeasures"]);
     }
 
     @Post()
@@ -42,6 +49,23 @@ export class ProductController {
             await this.productService.createProduct(body, user)
 
         }
+    }
+
+    @Put(":id")
+    async update(
+        @Param("id") id: number,
+        @Body() body: ProductCreateDTO
+    ) {
+        const product =await this.productService.findOne({ id }, ["productMeasures"])
+        await this.productService.editProduct(id, body, product)
+        return { successmessage: "Successfully updated" }
+
+    }
+
+    @Delete(":id")
+    async delete(@Param("id") id: number) {
+        await this.productService.delete(id);
+        return { successmessage: "Successfully deleted" }
     }
 
 }

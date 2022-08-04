@@ -22,4 +22,10 @@ export class StockbalanceService extends CommonService {
         await this.stockBalanceRepository.update((await productsQty).id, (await productsQty))
     }
 
+    customQuery(idd: any): any {
+        return this.stockBalanceRepository.createQueryBuilder("stockbalance")
+            .where("stockbalance.adminId =:id", { id: idd })
+            .getMany();
+    }
+
 }

@@ -7,7 +7,7 @@ export class Product {
     id: number;
 
     @Column()
-    productCode: number;
+    productCode: string;
 
     @Column()
     productName: string;
@@ -15,7 +15,7 @@ export class Product {
     @Column()
     adminId: number;
 
-    @OneToMany(() => ProductMeasure, (x) => x.product, { cascade: true })
+    @OneToMany(() => ProductMeasure, (x) => x.product, { cascade: true, nullable: true })
     productMeasures: ProductMeasure[];
 
 
