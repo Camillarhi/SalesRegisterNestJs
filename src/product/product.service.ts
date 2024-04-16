@@ -22,6 +22,15 @@ export class ProductService extends CommonService {
         return product
     }
 
+    async getProductExist(userId: any, product: any): Promise<any> {
+        let produ = await this.productRepository.createQueryBuilder("product")
+            .where("product.adminId =:id", { id: userId })
+            .andWhere("product.productName =:prod", { prod: product })
+            .leftJoinAndSelect("product.productMeasures", "productMeasures")
+            .getOne();
+        return produ;
+    }
+
     customQuery(idd: any): any {
         return this.productRepository.createQueryBuilder("product")
             .where("product.adminId =:id", { id: idd })
@@ -40,7 +49,7 @@ export class ProductService extends CommonService {
 
     async createProduct(data: any, user: any) {
         const product = new Product();
-        product.productCode = (data.productName.substring(1, 3)) + (Math.floor(Math.random() * (20000 - 22 + 1)) + 34);
+        product.productCode = (data.productName.substring(1, 2)) + (Math.floor(Math.random() * (20000 - 22 + 1)) + 34);
         product.productName = data.productName;
         product.adminId = user.createdById;
         let prodMeasure = [];
@@ -70,9 +79,6 @@ export class ProductService extends CommonService {
             .leftJoinAndSelect("product.productMeasures", "productMeasures")
             .where("product.id =:id", { id: id })
             .getOne();
-
-
-
         product.productCode = (data.productName.substring(1, 3)) + (Math.floor(Math.random() * (20000 - 22 + 1)) + 34);
         product.productName = data.productName;
         // product.adminId = user.createdById;
@@ -95,7 +101,7 @@ export class ProductService extends CommonService {
         product.productMeasures = prodMeasure
         const p = 5
         // await this.productRepository.update(id, product);
-       await this.productRepository.delete(id)
+        await this.productRepository.delete(id)
         this.productRepository.save({
             productName: product.productName,
             productCode: product.productCode,

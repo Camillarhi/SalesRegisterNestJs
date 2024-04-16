@@ -70,7 +70,6 @@ export class AuthController {
     @Post('createadmin')
     async signUp(
         @Body() body: UserCreateDTO,
-        @UploadedFile() file: Express.Multer.File
     ) {
         if (body.password !== body.confirmPassword) {
             throw new BadRequestException("Passwords do not match")
